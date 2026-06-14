@@ -17,6 +17,7 @@ import Link from "next/link";
 import type { AgentDefinition } from "@/src/types/agents";
 import type { Category } from "@/src/types/categories";
 import { useToast } from "@/src/components/ui/toast";
+import { apiFetch } from "@/src/lib/api-fetch";
 import { ConfirmDialog } from "@/src/components/ui/modal";
 import { AgentIcon } from "@/src/components/ui/agent-icon";
 
@@ -72,7 +73,7 @@ export function SettingsPage() {
   const loadCategories = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/categories");
+      const res = await apiFetch("/api/categories");
       if (res.ok) {
         setCategories((await res.json()) as Category[]);
       }
@@ -95,7 +96,7 @@ export function SettingsPage() {
   // ---- CRUD ----
   async function handleAdd(data: { name: string; desc: string; icon: string; color: string }) {
     try {
-      const res = await fetch("/api/categories", {
+      const res = await apiFetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -112,7 +113,7 @@ export function SettingsPage() {
 
   async function handleEdit(id: string, data: { name: string; desc: string; icon: string; color: string }) {
     try {
-      const res = await fetch("/api/categories", {
+      const res = await apiFetch("/api/categories", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, ...data }),
@@ -129,7 +130,7 @@ export function SettingsPage() {
 
   async function handleDelete(id: string) {
     try {
-      const res = await fetch(`/api/categories?id=${id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/categories?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
       setCategories((prev) => prev.filter((c) => c.id !== id));
       setDeletingCat(null);
@@ -145,7 +146,7 @@ export function SettingsPage() {
       // Delete all existing categories — use allSettled so one failure doesn't abort the rest
       const deleteResults = await Promise.allSettled(
         categories.map(async (cat) => {
-          const res = await fetch(`/api/categories?id=${cat.id}`, { method: "DELETE" });
+          const res = await apiFetch(`/api/categories?id=${cat.id}`, { method: "DELETE" });
           if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
           return res;
         })
@@ -155,7 +156,7 @@ export function SettingsPage() {
       // Create preset categories — likewise use allSettled for resilience
       const createResults = await Promise.allSettled(
         DEFAULT_PRESETS.map(async (preset) => {
-          const res = await fetch("/api/categories", {
+          const res = await apiFetch("/api/categories", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(preset),
@@ -188,7 +189,7 @@ export function SettingsPage() {
   async function loadAgents() {
     setAgentsLoading(true);
     try {
-      const res = await fetch("/api/agents");
+      const res = await apiFetch("/api/agents");
       if (res.ok) {
         const data = (await res.json()) as AgentDefinition[];
         setAgents(data);
@@ -210,7 +211,7 @@ export function SettingsPage() {
   async function saveAgents() {
     setAgentsSaving(true);
     try {
-      const res = await fetch("/api/agents", {
+      const res = await apiFetch("/api/agents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ enabledIds: draftEnabledIds }),
@@ -514,7 +515,7 @@ function GeneralSettings() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch("/api/settings")
+    apiFetch("/api/settings")
       .then((res) => res.json())
       .then((data) => {
         if (data.syncMode) setSyncMode(data.syncMode);
@@ -527,7 +528,7 @@ function GeneralSettings() {
     setSyncMode(mode);
     setSaving(true);
     try {
-      const res = await fetch("/api/settings", {
+      const res = await apiFetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ syncMode: mode }),

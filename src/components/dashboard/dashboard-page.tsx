@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import type { SkillBoardModel, SkillBoardRow } from "@/src/types/board";
 import { useToast } from "@/src/components/ui/toast";
+import { apiFetch } from "@/src/lib/api-fetch";
 import { Badge } from "@/src/components/ui/badge";
 import { ConfirmDialog } from "@/src/components/ui/modal";
 import { AgentIcon } from "@/src/components/ui/agent-icon";
@@ -139,7 +140,7 @@ export function DashboardPage({ model }: { model: SkillBoardModel }) {
     setInstallResult(null);
     setBusyAction(key);
     try {
-      const res = await fetch("/api/sync/apply", {
+      const res = await apiFetch("/api/sync/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -170,7 +171,7 @@ export function DashboardPage({ model }: { model: SkillBoardModel }) {
     setInstallResult(null);
     setBusyAction("install");
     try {
-      const res = await fetch("/api/skills/install", {
+      const res = await apiFetch("/api/skills/install", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ source }),
@@ -194,7 +195,7 @@ export function DashboardPage({ model }: { model: SkillBoardModel }) {
     setShowDeleteConfirm(false);
     setBusyAction(`delete:${filteredSkill.name}`);
     try {
-      const res = await fetch("/api/sync/remove", {
+      const res = await apiFetch("/api/sync/remove", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ skillName: filteredSkill.name }),
@@ -213,7 +214,7 @@ export function DashboardPage({ model }: { model: SkillBoardModel }) {
   async function handleToggleCustom(skillName: string, isCustom: boolean) {
     setBusyAction(`tag:${skillName}`);
     try {
-      const res = await fetch("/api/custom-tag", {
+      const res = await apiFetch("/api/custom-tag", {
         method: isCustom ? "DELETE" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ skillName }),
@@ -248,7 +249,7 @@ export function DashboardPage({ model }: { model: SkillBoardModel }) {
     setIsLoadingContent(true);
     setSkillContent(null);
     const url = `/api/skills/content?path=${encodeURIComponent(selectedSkill.skillFilePath)}`;
-    fetch(url)
+    apiFetch(url)
       .then((res) => (res.ok ? res.json() : Promise.reject(res)))
       .then((data) => {
         if (!cancelled) {
@@ -502,7 +503,7 @@ export function DashboardPage({ model }: { model: SkillBoardModel }) {
           onSaveCategories={async () => {
             setBusyAction(`cat:${filteredSkill.name}`);
             try {
-              const res = await fetch("/api/skill-categories", {
+              const res = await apiFetch("/api/skill-categories", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -947,7 +948,7 @@ function SkillCard({
       <div className="skill-card-footer">
         <div className="skill-card-agents">
           {row.cells.map((cell) => (
-            <AgentIcon key={cell.agentId} agentId={cell.agentId} status={cell.displayStatus} size={18} />
+            <AgentIcon key={cell.agentId} agentId={cell.agentId} status={cell.displayStatus} size={16} showName />
           ))}
         </div>
         <button
@@ -1009,7 +1010,7 @@ function SkillRow({
       </div>
       <div className="skill-row-agents">
         {row.cells.map((cell) => (
-          <AgentIcon key={cell.agentId} agentId={cell.agentId} status={cell.displayStatus} size={16} />
+          <AgentIcon key={cell.agentId} agentId={cell.agentId} status={cell.displayStatus} size={16} showName />
         ))}
       </div>
       <button

@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { scanClaudeInstructions } from "@/src/lib/instructions/scan-claude-instructions";
 import { scanCodexInstructions } from "@/src/lib/instructions/scan-codex-instructions";
 import { scanHermesInstructions } from "@/src/lib/instructions/scan-hermes-instructions";
+import { scanOpenclawInstructions } from "@/src/lib/instructions/scan-openclaw-instructions";
 import type { InstructionAsset, InstructionsPageModel } from "@/src/types/instructions";
 
 export async function buildInstructionsModel(
@@ -13,7 +14,8 @@ export async function buildInstructionsModel(
   const surfaces = await Promise.all([
     scanClaudeInstructions(claudeRootDir),
     scanCodexInstructions(codexRootDir),
-    scanHermesInstructions()
+    scanHermesInstructions(),
+    scanOpenclawInstructions()
   ]);
 
   const assets = surfaces

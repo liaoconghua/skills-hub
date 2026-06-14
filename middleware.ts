@@ -11,6 +11,17 @@ function isLocalHost(host: string): boolean {
   );
 }
 
+/** Also accept requests forwarded through a trusted reverse proxy. */
+function isLocalOrTrustedProxy(request: NextRequest): boolean {
+  const host = request.headers.get("host") ?? "";
+  if (isLocalHost(host)) return true;
+  // Accept requests forwarded from Nginx reverse proxy on the same machine
+  const forwardedFor = request.headers.get("x-forwarded-for") ?? "";
+  const forwardedProto = request.headers.get("x-forwarded-proto") ?? "";
+  if (forwardedFor === "127.0.0.1" && forwardedProto !== "") return true;
+  return false;
+}
+
 /** Base response with security headers applied. */
 const SECURE_RESPONSE = (() => {
   const res = NextResponse.next();
@@ -32,7 +43,7 @@ export function middleware(request: NextRequest) {
 
   const host = request.headers.get("host") ?? "";
 
-  if (!isLocalHost(host)) {
+  if (!isLocalOrTrustedProxy(request)) {
     return new NextResponse(
       JSON.stringify({ error: "Forbidden: write endpoints are only accessible from localhost" }),
       {

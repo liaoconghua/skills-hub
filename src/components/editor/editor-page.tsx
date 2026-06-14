@@ -8,6 +8,7 @@ import remarkGfm from "remark-gfm";
 
 import type { InstructionsPageModel } from "@/src/types/instructions";
 import { useToast } from "@/src/components/ui/toast";
+import { apiFetch } from "@/src/lib/api-fetch";
 
 type EditorViewMode = "edit" | "preview" | "split";
 
@@ -32,7 +33,7 @@ export function EditorPage() {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const res = await fetch("/api/instructions", { cache: "no-store" });
+      const res = await apiFetch("/api/instructions", { cache: "no-store" });
       if (!res.ok) throw new Error(`加载失败：${res.status}`);
       const data = (await res.json()) as InstructionsPageModel;
       setModel(data);
@@ -70,7 +71,7 @@ export function EditorPage() {
     setIsSaving(true);
     setSaveError(null);
     try {
-      const res = await fetch("/api/instructions/update", {
+      const res = await apiFetch("/api/instructions/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

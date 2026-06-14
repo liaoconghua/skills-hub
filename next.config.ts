@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 const workspaceRoot = dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
+  basePath: "/skills-hub",
   typedRoutes: true,
   outputFileTracingRoot: workspaceRoot,
   webpack: (config, { dev }) => {

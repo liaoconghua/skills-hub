@@ -1,4 +1,4 @@
-export type InstructionAgent = "claude" | "codex" | "hermes";
+export type InstructionAgent = "claude" | "codex" | "hermes" | "openclaw";
 
 export type InstructionKind = "main" | "rule" | "override" | "nested";
 
